@@ -1,17 +1,40 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import ReactDom from 'react-dom';
+import App from './components/App';
+import { createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const articlesReducer = (state = [], action) => {
+    switch(action.type) {
+        case 'ADD_ARTICLE':
+            console.log('ADD_ARTICLE');
+            console.log('action ', action);
+            action.payload.id = Date.now();
+            const newState = [...state, action.payload];
+            return newState;
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+            case 'REMOVE_ARTICLE':
+            console.log('REMOVE_ARTICLE');
+            return state.filter(article => article.id !== action.payload);
+            
+            case 'EDIT_ARTICLE':
+                console.log('EDIT_ARTICLE');
+                const articleId = action.payload.id;
+                return state.map(article => {
+                    if(article.id !== articleId){
+                        return article;
+                    }
+                    return action.payload
+                })
+   
+       default: return state;
+   }
+
+};
+const store = createStore(combineReducers({articles: articlesReducer}), 
+window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+
+window.store = store;
+
+ReactDom.render(<Provider store={store}><App/></Provider>, document.getElementById('root'));
+
